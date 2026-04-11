@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto, Outfit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const outfitHeading = Outfit({subsets:['latin'],variable:'--font-heading'});
 
@@ -28,11 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", roboto.variable, outfitHeading.variable)}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="h-full">
+      <body
+        className={cn(
+          "min-h-full flex flex-col antialiased",
+          "bg-gradient-to-br from-blue-50 to-indigo-100",
+          // Injecting all font variables
+          geistSans.variable,
+          geistMono.variable,
+          roboto.variable,
+          outfitHeading.variable,
+          // Applying the default sans font (Roboto) to the body
+          "font-sans text-slate-900" 
+        )}
+      >
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }
