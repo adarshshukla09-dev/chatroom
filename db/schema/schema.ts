@@ -6,5 +6,11 @@ import {
   boolean,
   index,pgEnum,
   uuid,
+  PgTable,
 } from "drizzle-orm/pg-core";
-import {user} from "./auth-schema"
+
+export const room = pgTable("room",{
+  id: uuid("id").primaryKey(),
+  name:text("name").notNull(),
+message:text("message")
+})
