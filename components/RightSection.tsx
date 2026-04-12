@@ -1,8 +1,9 @@
 "use client"
 
-import React, { Dispatch, SetStateAction } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Pencil, Image as ImageIcon } from 'lucide-react' // Assuming you have lucide-react
+import { Pencil, Image as ImageIcon } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
 interface Props {
   selectedUser: boolean
@@ -12,7 +13,7 @@ interface Props {
 function RightSection({ selectedUser, setSelectedUser }: Props) {
   // Mock data for the media gallery
   const mediaItems = [1, 2, 3, 4, 5, 6]
-
+const [edit,setEdit]=useState<boolean>(false)
   return (
     <div className={`
       min-h-[calc(100vh-2rem)] flex flex-col items-center 
@@ -27,7 +28,7 @@ function RightSection({ selectedUser, setSelectedUser }: Props) {
         <div className="relative group">
           <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-inner bg-gradient-to-tr from-slate-100 to-slate-200">
             <img 
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" 
+              src="https://i.pinimg.com/474x/f9/05/54/f9055402c54ad21b834774c676ebb571.jpg" 
               alt="avatar" 
               className="object-cover w-full h-full"
             />
@@ -40,10 +41,7 @@ function RightSection({ selectedUser, setSelectedUser }: Props) {
           <p className="text-sm text-slate-500">Available</p>
         </div>
 
-        <Button variant="outline" className="w-full rounded-xl flex gap-2 bg-white/50 hover:bg-white shadow-sm border-slate-200">
-          <Pencil className="w-4 h-4" />
-          Edit Profile
-        </Button>
+        
       </div>
 
       <hr className="w-full border-slate-200/50 mb-6" />
@@ -77,9 +75,30 @@ function RightSection({ selectedUser, setSelectedUser }: Props) {
         
         {/* Additional Info Section */}
         <div className="mt-8 space-y-4 w-full">
-            <div className="p-3 rounded-xl bg-white/30 hover:bg-white/50 cursor-pointer transition-colors">
-                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">About</p>
-                <p className="text-sm text-slate-700 mt-1">Coding the future, one bug at a time. 🚀</p>
+            <div className="p-3 rounded-xl bg-white/30 hover:bg-white/50 transition-colors">
+                <div className="flex justify-between items-center mb-1">
+                  <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">About</p>
+                  <button 
+                    onClick={() => setEdit(prev => !prev)}
+                    className="p-1.5 hover:bg-white rounded-full transition-colors group"
+                  >
+                    <Pencil size={14} className="text-slate-400 group-hover:text-blue-500" />
+                  </button>
+                </div>
+                
+                {edit ? (
+                  <div className="mt-2 flex">
+                    <Input 
+                      type="text" 
+                      defaultValue="Coding the future, one bug at a time. 🚀" 
+                      placeholder="Enter new about info..."
+                      className="bg-white/60 border-slate-200 text-sm focus-visible:ring-blue-500 h-9"
+                      autoFocus
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-700">Coding the future, one bug at a time. 🚀</p>
+                )}
             </div>
         </div>
       </div>

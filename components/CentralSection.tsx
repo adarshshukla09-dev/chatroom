@@ -11,11 +11,13 @@ function CentralSection({ selectedUser }: { selectedUser: boolean }) {
           {/* Header */}
           <div className="p-4 px-6 border-b border-slate-100 flex justify-between items-center bg-white/40">
             <div className="flex items-center gap-3">
+              <div className='rounded-full h-14 w-14 bg-red'>
+                <img src="https://i.pinimg.com/474x/f9/05/54/f9055402c54ad21b834774c676ebb571.jpg" className='h-14 w-14 rounded-full' alt="" />
+              </div>
               <div className="font-semibold text-slate-800">Adharsh 1</div>
             </div>
             <div className="flex items-center gap-4 text-slate-500">
-              <Phone size={20} className="cursor-pointer hover:text-primary transition-colors" />
-              <Video size={20} className="cursor-pointer hover:text-primary transition-colors" />
+              
               <MoreHorizontal size={20} className="cursor-pointer hover:text-primary transition-colors" />
             </div>
           </div>
