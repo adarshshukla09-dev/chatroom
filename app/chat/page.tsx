@@ -1,31 +1,26 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import CentralSection from "@/components/CentralSection"
-import RightSection from "@/components/RightSection"
-import LeftSection from "@/components/LeftScetion"
+import React, { useState } from "react";
+import LeftSection, { User } from "@/components/LeftScetion";
+import CentralSection from "@/components/CentralSection";
+import RightSection from "@/components/RightSection";
 
-function Page() {
-  const [selectedUser, setSelectedUser] = useState<boolean>(false)
+export default function ChatPage() {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   return (
-    // Added a subtle background gradient to make the white glass panels pop
-    <div className="flex h-screen w-full bg-slate-50 p-2 gap-2 overflow-hidden">
+    <div className="flex h-screen w-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 p-4 gap-4 overflow-hidden">
+      {/* Left Sidebar */}
       <LeftSection
-        selectedUser={selectedUser}
+        selectedUser={selectedUser as User}
         setSelectedUser={setSelectedUser}
       />
-      <CentralSection 
-        selectedUser={selectedUser}
-      />
-      {selectedUser && (
-        <RightSection 
-          selectedUser={selectedUser}
-          setSelectedUser={setSelectedUser}
-        />
-      )}
-    </div>
-  )
-}
 
-export default Page
+      {/* Central Chat Area */}
+      <CentralSection selectedUser={selectedUser as User} />
+
+      {/* Right Profile Panel */}
+      {selectedUser && <RightSection selectedUser={selectedUser} />}
+    </div>
+  );
+}

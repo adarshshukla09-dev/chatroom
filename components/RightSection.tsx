@@ -4,13 +4,13 @@ import React, { Dispatch, SetStateAction, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Pencil, Image as ImageIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { User } from './LeftScetion'
 
 interface Props {
-  selectedUser: boolean
-  setSelectedUser: Dispatch<SetStateAction<boolean>>
-}
+  selectedUser: User
+  }
 
-function RightSection({ selectedUser, setSelectedUser }: Props) {
+function RightSection({ selectedUser }: Props) {
   // Mock data for the media gallery
   const mediaItems = [1, 2, 3, 4, 5, 6]
 const [edit,setEdit]=useState<boolean>(false)
@@ -28,7 +28,7 @@ const [edit,setEdit]=useState<boolean>(false)
         <div className="relative group">
           <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-inner bg-gradient-to-tr from-slate-100 to-slate-200">
             <img 
-              src="https://i.pinimg.com/474x/f9/05/54/f9055402c54ad21b834774c676ebb571.jpg" 
+              src={selectedUser?.image ? selectedUser.image :`https://i.pinimg.com/474x/f9/05/54/f9055402c54ad21b834774c676ebb571.jpg `} 
               alt="avatar" 
               className="object-cover w-full h-full"
             />
@@ -37,7 +37,7 @@ const [edit,setEdit]=useState<boolean>(false)
         </div>
 
         <div className="text-center">
-          <h2 className="text-xl font-bold text-slate-800">John Doe</h2>
+          <h2 className="text-xl font-bold text-slate-800">{selectedUser.name}</h2>
           <p className="text-sm text-slate-500">Available</p>
         </div>
 
