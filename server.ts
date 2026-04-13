@@ -53,7 +53,6 @@ socket.emit("online_user",users)
     socket.on("disconnect", () => {
       for (const userId in users) {
         if (users[userId] === socket.id) {
-           updateLastSeen(userId, new Date());
           delete users[userId];
           break;
         }

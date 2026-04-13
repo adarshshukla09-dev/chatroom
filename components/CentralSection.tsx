@@ -119,7 +119,7 @@ useEffect(() => {
               />
               <div>
                 <div className="font-semibold text-slate-800">{selectedUser.name}</div>
-                <div className="text-xs text-green-500">Online</div>
+                <div className="text-xs text-green-500">{selectedUser?.lastseen ? new Date(selectedUser.lastseen).toLocaleDateString() : "Offline"}</div>
               </div>
             </div>
             <MoreHorizontal size={20} className="cursor-pointer text-slate-400" />

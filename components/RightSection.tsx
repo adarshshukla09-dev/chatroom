@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Pencil, Image as ImageIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { User } from './LeftScetion'
+import { toast } from 'sonner'
+import { updateAbout } from '@/server-action/leftSidebar'
 
 interface Props {
   selectedUser: User
@@ -15,7 +17,13 @@ function RightSection({ selectedUser }: Props) {
   const mediaItems = [1, 2, 3, 4, 5, 6]
 const [edit,setEdit]=useState<boolean>(false)
 const [about,setAbout]=useState<string>(selectedUser.about);
-
+const handlesave = async()=>{
+  try {
+    await updateAbout(selectedUser.id,about)
+  } catch (error) {
+    toast.error("Failed to save")
+  }
+}
   return (
     <div className={`
       min-h-[calc(100vh-2rem)] flex flex-col items-center 
@@ -28,7 +36,7 @@ const [about,setAbout]=useState<string>(selectedUser.about);
       {/* Profile Header Section */}
       <div className="flex flex-col items-center w-full space-y-4 mb-8">
         <div className="relative group">
-          <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-inner bg-gradient-to-tr from-slate-100 to-slate-200">
+          <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-inner bg-linear-to-tr from-slate-100 to-slate-200">
             <img 
               src={selectedUser?.image ? selectedUser.image :`https://i.pinimg.com/474x/f9/05/54/f9055402c54ad21b834774c676ebb571.jpg `} 
               alt="avatar" 
@@ -48,32 +56,7 @@ const [about,setAbout]=useState<string>(selectedUser.about);
 
       <hr className="w-full border-slate-200/50 mb-6" />
 
-      {/* WhatsApp-style Media Section */}
-      <div className="w-full flex flex-col flex-grow">
-        <div className="flex justify-between items-center mb-4 px-1">
-          <span className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-            <ImageIcon className="w-4 h-4" /> Media, Links and Docs
-          </span>
-          <span className="text-xs text-blue-500 font-medium cursor-pointer hover:underline">
-            {mediaItems.length} {'>'}
-          </span>
-        </div>
-
-        {/* Media Grid */}
-        <div className="grid grid-cols-3 gap-2 overflow-y-auto max-h-64 scrollbar-hide">
-          {mediaItems.map((item) => (
-            <div 
-              key={item} 
-              className="aspect-square rounded-lg bg-slate-200 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src={`https://picsum.photos/seed/${item + 10}/200`} 
-                alt="Shared media" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
-        </div>
+      
         
         {/* Additional Info Section */}
         <div className="mt-8 space-y-4 w-full">
@@ -89,7 +72,7 @@ const [about,setAbout]=useState<string>(selectedUser.about);
                 </div>
                 
                 {edit ? (
-                  <div className="mt-2 flex">
+                  <div className="mt-2 flex items-center">
                     <Input 
                     value={about}
                     onChange={(e)=>setAbout(e.target.value)}
@@ -97,6 +80,7 @@ const [about,setAbout]=useState<string>(selectedUser.about);
                       className="bg-white/60 border-slate-200 text-sm focus-visible:ring-blue-500 h-9"
                       autoFocus
                     />
+                    <button className='bg-blue-600 rounded-xl m-3 p-2 text-white text-sm ' onClick={handlesave}>save</button>
                   </div>
                 ) : (
                   <p className="text-sm text-slate-700">Coding the future, one bug at a time. 🚀</p>
@@ -104,7 +88,6 @@ const [about,setAbout]=useState<string>(selectedUser.about);
             </div>
         </div>
       </div>
-    </div>
   )
 }
 

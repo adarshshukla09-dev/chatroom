@@ -13,7 +13,7 @@ export default async function Home() {
         redirect("/Sign-in")
     }
   return (
-  <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+  <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 p-4">
     <div className="flex flex-col items-center justify-center gap-4">
 
      <h1 className="text-2xl md:text-3xl font-bold mb-1 text-gray-800">welcome to chatroom</h1>

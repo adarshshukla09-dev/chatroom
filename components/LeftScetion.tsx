@@ -3,10 +3,11 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {  Search, ListFilter, Loader2 } from "lucide-react";
-import { getAllUserForLeftSideBar, markSeen } from "@/server-action/leftSidebar";
+import { getAllUserForLeftSideBar, markSeen, updateLastSeen } from "@/server-action/leftSidebar";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { socket  } from "@/lib/scoket"; // Import your socket instance
+import { useRouter } from "next/navigation"; // Use this instead
 export type User = {
     unseenMessageCount: number;
     id: string;
@@ -30,6 +31,7 @@ interface Props {
 }
 
 function LeftSection({ selectedUser, setSelectedUser }: Props) {
+const router = useRouter();
   const [users, setUsers] = useState<UserAll[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [logged, setLogged] = useState<string>("");
@@ -54,9 +56,7 @@ const [onUser,setOnUser]=useState()
           });
 
           socket.connect();
-          socket.on("online_user",(users)=>{
-            setOnUser( users)
-          })
+       
           // Fetch Initial List
           const result = await getAllUserForLeftSideBar(loggedUserId);
 
@@ -77,10 +77,13 @@ const [onUser,setOnUser]=useState()
     // Cleanup on unmount only
     return () => {
       socket.off("connect");
+      socket.off("online_user");
       socket.disconnect();
     };
   }, []);
-
+   socket.on("online_user",(users)=>{
+            setOnUser( users)
+          })
   // Effect 2: Listen for incoming messages (re-subscribes when selectedUser changes)
   useEffect(() => {
     const handleIncomingMessage = (newMessage: any) => {
@@ -129,7 +132,7 @@ const [onUser,setOnUser]=useState()
         bg-white/80 backdrop-blur-xl
         rounded-3xl border border-slate-200
         transition-all duration-500 ease-in-out
-        ${selectedUser ? "w-[320px]" : "w-[400px]"}
+        ${selectedUser ? "w-[320px]" : "w-100"}
         overflow-hidden`} // Changed to hidden; scroll inner container
     >
       {/* Header Section */}
@@ -178,7 +181,7 @@ const [onUser,setOnUser]=useState()
                       <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     {/* Status Indicator */}
-                  {/* {onUser && user.id in onUser &&  <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 border-2 border-white rounded-full"></div>} */}
+                  {onUser && user.id in onUser &&  <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 border-2 border-white rounded-full"></div>}
                   </div>
 
                   <div className="flex flex-col flex-1 overflow-hidden">
@@ -196,9 +199,13 @@ const [onUser,setOnUser]=useState()
                         {/* You can add last message text here later */}
                         Click to view messages
                       </p>
+                      <p className="text-xs text-slate-500 truncate float-right pr-2">
+                        {/* You can add last message text here later */}
+                      {selectedUser?.lastseen.toLocaleDateString()}
+                      </p>
                       
                       {user.unseenMessageCount > 0 && (
-                        <div className="min-w-[18px] h-[18px] px-1 flex justify-center items-center rounded-full bg-blue-500 text-white text-[10px] font-bold">
+                        <div className="min-w-4.5 h-4.5 px-1 flex justify-center items-center rounded-full bg-blue-500 text-white text-[10px] font-bold">
                           {user.unseenMessageCount}
                         </div>
                       )}
