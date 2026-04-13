@@ -2,19 +2,22 @@
 
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Clock, Search, ListFilter, Loader2 } from "lucide-react";
+import {  Search, ListFilter, Loader2 } from "lucide-react";
 import { getAllUserForLeftSideBar, markSeen } from "@/server-action/leftSidebar";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-
+import { socket  } from "@/lib/scoket"; // Import your socket instance
 export type User = {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+    unseenMessageCount: number;
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    image: string | null;
+    lastseen: Date;
+    about: string;
+    createdAt: Date;
+    updatedAt: Date;
 };
 
 export interface UserAll extends User {
@@ -29,24 +32,39 @@ interface Props {
 function LeftSection({ selectedUser, setSelectedUser }: Props) {
   const [users, setUsers] = useState<UserAll[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-const [logged,setLogged] = useState<string>("")
+  const [logged, setLogged] = useState<string>("");
+const [online,setOnline]=useState<boolean>(false)
+const [onUser,setOnUser]=useState()
+  // Effect 1: Socket connection lifecycle (runs once on mount)
   useEffect(() => {
-    const fetchUsers = async () => {
+    const initChat = async () => {
       try {
         setLoading(true);
         const { data: session } = await authClient.getSession();
-      // Inside fetchUsers in LeftSection.tsx
-const loggedUserId = session?.user?.id;
+        const loggedUserId = session?.user?.id;
 
-if (loggedUserId) {
-  setLogged(loggedUserId);
-  // FIX: Use the local variable loggedUserId, not the 'logged' state
-  const result = await getAllUserForLeftSideBar(loggedUserId); 
-  if (result) {
-    setUsers(result);
-  }
-}
-        
+        if (loggedUserId) {
+          setLogged(loggedUserId);
+
+          // Wait for socket to actually connect before registering
+          socket.on("connect", () => {
+            console.log("Socket connected:", socket.id);
+            setOnline(true)
+            socket.emit("register_user", loggedUserId);
+          });
+
+          socket.connect();
+          socket.on("online_user",(users)=>{
+            setOnUser( users)
+          })
+          // Fetch Initial List
+          const result = await getAllUserForLeftSideBar(loggedUserId);
+
+          if (result){ 
+            setUsers(result);
+          
+          }
+        }
       } catch (error) {
         toast.error("Failed to load contacts");
       } finally {
@@ -54,10 +72,43 @@ if (loggedUserId) {
       }
     };
 
-    
-    fetchUsers();
+    initChat();
+
+    // Cleanup on unmount only
+    return () => {
+      socket.off("connect");
+      socket.disconnect();
+    };
   }, []);
- const markedSeen = async (id: string, clickedUser: UserAll) => {
+
+  // Effect 2: Listen for incoming messages (re-subscribes when selectedUser changes)
+  useEffect(() => {
+    const handleIncomingMessage = (newMessage: any) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((u) => {
+          if (u.id === newMessage.senderId) {
+            // Only increment if we aren't currently looking at their chat
+            const isNotSelected = selectedUser?.id !== u.id;
+            return {
+              ...u,
+              unseenMessageCount: isNotSelected 
+                ? u.unseenMessageCount + 1 
+                : 0,
+            };
+          }
+          return u;
+        })
+      );
+    };
+
+    socket.on("receive_private_message", handleIncomingMessage);
+
+    return () => {
+      socket.off("receive_private_message", handleIncomingMessage);
+    };
+  }, [selectedUser?.id]);
+
+  const markedSeen = async (id: string, clickedUser: UserAll) => {
   try {
     await markSeen(id, logged); // Fixed order: sender is the other user, receiver is 'logged'
     setSelectedUser(clickedUser);
@@ -71,7 +122,6 @@ if (loggedUserId) {
     console.error(error);
   }
 };
-
   return (
     <div
       className={`
@@ -128,7 +178,7 @@ if (loggedUserId) {
                       <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     {/* Status Indicator */}
-                    <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+                  {/* {onUser && user.id in onUser &&  <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 border-2 border-white rounded-full"></div>} */}
                   </div>
 
                   <div className="flex flex-col flex-1 overflow-hidden">

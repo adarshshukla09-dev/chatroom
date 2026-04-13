@@ -5,7 +5,7 @@ import { MoreHorizontal, Search, SendHorizonal } from "lucide-react";
 import { getChatMessages, sendMessage } from "@/server-action/leftSidebar";
 import { authClient } from "@/lib/auth-client";
 import { User } from "./LeftScetion";
-
+import { socket } from "@/lib/scoket";
 type Message = {
   id: string;
   senderId: string;
@@ -23,7 +23,9 @@ function CentralSection({ selectedUser }: { selectedUser: User }) {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 1. Fetch Current User Session on mount
+  // Socket connection is managed by LeftSection — no connect/disconnect here
+
+
   useEffect(() => {
     const fetchSession = async () => {
       const { data: session } = await authClient.getSession();
@@ -50,7 +52,23 @@ function CentralSection({ selectedUser }: { selectedUser: User }) {
     };
     fetchMessages();
   }, [selectedUser, currentUserId]);
+useEffect(() => {
+  socket.on("receive_private_message", (message) => {
+    const isRelevant =
+      (message.senderId === selectedUser.id &&
+        message.receiverId === currentUserId) ||
+      (message.senderId === currentUserId &&
+        message.receiverId === selectedUser.id);
 
+    if (isRelevant) {
+      setMessages((prev) => [...prev, message]);
+    }
+  });
+
+  return () => {
+    socket.off("receive_private_message");
+  };
+}, [selectedUser, currentUserId]);
   // 3. Scroll to bottom whenever messages update
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -77,7 +95,11 @@ function CentralSection({ selectedUser }: { selectedUser: User }) {
 
       // Logic Fix: currentUserId is SENDER, selectedUser.id is RECEIVER
       await sendMessage(currentUserId, selectedUser.id, messageContent);
-      
+        socket.emit("send_private_message", {
+      senderId: currentUserId,
+      receiverId: selectedUser.id,
+      content: messageContent,
+    });
     } catch (error) {
       console.error("Failed to send message:", error);
     }

@@ -14,6 +14,8 @@ function RightSection({ selectedUser }: Props) {
   // Mock data for the media gallery
   const mediaItems = [1, 2, 3, 4, 5, 6]
 const [edit,setEdit]=useState<boolean>(false)
+const [about,setAbout]=useState<string>(selectedUser.about);
+
   return (
     <div className={`
       min-h-[calc(100vh-2rem)] flex flex-col items-center 
@@ -89,9 +91,9 @@ const [edit,setEdit]=useState<boolean>(false)
                 {edit ? (
                   <div className="mt-2 flex">
                     <Input 
+                    value={about}
+                    onChange={(e)=>setAbout(e.target.value)}
                       type="text" 
-                      defaultValue="Coding the future, one bug at a time. 🚀" 
-                      placeholder="Enter new about info..."
                       className="bg-white/60 border-slate-200 text-sm focus-visible:ring-blue-500 h-9"
                       autoFocus
                     />

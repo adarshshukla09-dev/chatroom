@@ -25,6 +25,9 @@ export default async function Home() {
     <Link href="/Sign-up">
     <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Sign Up</button>
     </Link>
+    <Link href="/chat">
+    <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Chat</button>
+    </Link>
      </div>
     </div>
     </div>
