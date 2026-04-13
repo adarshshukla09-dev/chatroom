@@ -6,10 +6,14 @@ import { ne, or,eq, and } from "drizzle-orm";
 
 export const getAllUserForLeftSideBar = async (curruserId: string) => {
   try {
+    console.log("[DEBUG] getAllUserForLeftSideBar called with userId:", curruserId);
+    
     const allUser = await db
       .select()
       .from(user)
       .where(ne(user.id, curruserId));
+
+    console.log("[DEBUG] allUser query returned:", allUser.length, "users");
 
     const usersWithUnseenCount = await Promise.all(
       allUser.map(async (singleUser) => {
@@ -31,9 +35,10 @@ export const getAllUserForLeftSideBar = async (curruserId: string) => {
       })
     );
 
-    return usersWithUnseenCount
+    console.log("[DEBUG] returning usersWithUnseenCount:", usersWithUnseenCount.length);
+    return usersWithUnseenCount;
   } catch (error) {
-    console.log(error);
+    console.error("[ERROR] getAllUserForLeftSideBar failed:", error);
   }
 };
 export const getUser = async (userId: string) => {
@@ -98,6 +103,20 @@ export const sendMessage = async (
       content,
       seen: false,
     });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const updateAbout = async (userId: string, about: string) => {
+  try {
+    await db.update(user).set({ about }).where(eq(user.id, userId));
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const updateLastSeen = async (userId: string,lastseen: Date) => {
+  try {
+    await db.update(user).set({ lastseen }).where(eq(user.id, userId));
   } catch (error) {
     console.log(error);
   }
